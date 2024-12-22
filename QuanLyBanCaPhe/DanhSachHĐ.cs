@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -32,81 +32,69 @@ namespace QuanLyBanCaPhe
             get { return this.dsHD; }
             set { this.dsHD = value; }
         }
-        public bool kiemTraMa(string maHD)
-        {
-
-            string query = "SELECT COUNT(*) FROM hoaDon WHERE maHD= @maHD";
-            SqlCommand command = new SqlCommand(query, conn);
-            command.Parameters.AddWithValue("@maHD", maHD);
-
-            int count = (int)command.ExecuteScalar();
-            return count > 0;
-        }
         public bool Them(QuanLyHĐ hd)
         {
-            if (kiemTraMa(hd.MaHD))
-                return false;
-
-            string them = "insert into hoaDon(maNV,maHD,ngayLapHD,tongTien) values(@maNV,@maHD,@ngayLapHD,@tongTien)";
+            string them = "insert into hoaDon(maHD,ngayLapHD,tongTien,maNV) values(@maHD,@ngayLapHD,@tongTien,@maNV)";
             SqlCommand command = new SqlCommand(them, conn);
-            command.Parameters.AddWithValue("@maNV", hd.MaNV);
             command.Parameters.AddWithValue("@maHD", hd.MaHD);
             command.Parameters.AddWithValue("@ngayLapHD", hd.NgayLapHoaDon);
             command.Parameters.AddWithValue("@tongTien", hd.TongTien);
-       
+            command.Parameters.AddWithValue("@maNV", hd.MaNV);
             command.ExecuteNonQuery();
             this.dsHD.Add(hd);
             return true;
         }
-        public bool Xoa(string maHD)
-        {
-            string query = "BEGIN TRANSACTION;DELETE FROM CTHĐ WHERE maHD =@maHD;DELETE FROM hoaDon WHERE maHD =@maHD;COMMIT TRANSACTION";
-            SqlCommand command = new SqlCommand(query, conn);
+        //public bool Xoa(string maHD)
+        //{
+        //    string query = "delete from hoaDon where maHD=@maHD";
+        //    SqlCommand command = new SqlCommand(query, conn);
 
-            command.Parameters.AddWithValue("@maHD", maHD);
-            command.ExecuteNonQuery();
-            dsHD.RemoveAll(ln => ln.MaHD == maHD);
-            return true;
-        }
+        //    command.Parameters.AddWithValue("@maHD", maHD);
+        //    command.ExecuteNonQuery();
+        //    dsHD.RemoveAll(ln => ln.MaHD == maHD);
+        //    return true;
+        //}
 
-        public bool Sua(QuanLyHĐ hd)
-        {
-            string query = "UPDATE hoaDon SET maNV=@maNV,maHD=@maHD,ngayLapHD=@ngayLapHD,tongTien=@tongTien";
-            SqlCommand command = new SqlCommand(query, conn);
-            command.Parameters.AddWithValue("@maNV", hd.MaNV);
-            command.Parameters.AddWithValue("@maHD", hd.MaHD);
-            command.Parameters.AddWithValue("@ngayLapHD", hd.NgayLapHoaDon);
-            command.Parameters.AddWithValue("@tongTien", hd.TongTien);
-            command.ExecuteNonQuery();
+        //public bool Sua(QuanLyHĐ hd)
+        //{
+        //    string query = "UPDATE hoaDon SET maNV=@maNV,maHD=@maHD,ngayLapHD=@ngayLapHD,tongTien=@tongTien where maHD=@maHD";
+        //    SqlCommand command = new SqlCommand(query, conn);         
+        //    command.Parameters.AddWithValue("@maHD", hd.MaHD);
+        //    command.Parameters.AddWithValue("@ngayLapHD", hd.NgayLapHoaDon);
+        //    command.Parameters.AddWithValue("@tongTien", hd.TongTien);
+        //    command.Parameters.AddWithValue("@maNV", hd.MaNV);
+        //    command.ExecuteNonQuery();
 
-            int index = dsHD.FindIndex(n => n.MaHD == hd.MaHD);
-            if (index != -1)
-            {
-                dsHD[index] = hd;
-            }
-            return true;
-        }
-        public List<QuanLyCTHĐ>XemCTHĐ(string maHD)
+        //    int index = dsHD.FindIndex(n => n.MaHD == hd.MaHD);
+        //    if (index != -1)
+        //    {
+        //        dsHD[index] = hd;
+        //    }
+        //    return true;
+        //}
+      
+        public List<QuanLyHĐ> XemHĐ(DateTime ngayBD,DateTime ngayKT)
         {
-            List<QuanLyCTHĐ> ketQua = new List<QuanLyCTHĐ>();
+            List<QuanLyHĐ> kq = new List<QuanLyHĐ>();
             SqlConnection conn = new SqlConnection("Data Source = TRUCLY; Initial Catalog = doan; Integrated Security = True;");
             conn.Open();
-            SqlCommand cmd = new SqlCommand("select * from CTHĐ where maHD=@maHD", conn);
-            cmd.Parameters.AddWithValue("@maHD",maHD);
-            SqlDataReader reader = cmd.ExecuteReader();
+            SqlCommand command = new SqlCommand("SELECT * FROM hoaDon WHERE ngayLapHD between @ngayBD and @ngayKT ",conn);
+            command.Parameters.AddWithValue("@ngayBD",ngayBD);
+            command.Parameters.AddWithValue("@ngayKT",ngayKT);
+            
+            SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                QuanLyCTHĐ ct = new QuanLyCTHĐ
+                QuanLyHĐ hd = new QuanLyHĐ
                 {
                     MaHD = reader["maHD"].ToString(),
-                    MaNuoc = reader["maNuoc"].ToString(),
-                    TenNuoc = reader["tenNuoc"].ToString(),
-                    SoLuong = Convert.ToInt32(reader["soLuong"]),
-                    Gia = Convert.ToDouble(reader["gia"]),  
+                    NgayLapHoaDon = Convert.ToDateTime(reader["ngayLapHD"]),
+                    TongTien = Convert.ToDouble(reader["tongTien"]),
+                    MaNV = reader["maNV"].ToString()
                 };
-                ketQua.Add(ct);
+                kq.Add(hd);
             }
-            return ketQua;
+            return kq;
         }
     }
     }

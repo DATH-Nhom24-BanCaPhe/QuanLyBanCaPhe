@@ -45,7 +45,7 @@ namespace QuanLyBanCaPhe
                 string them = "insert into doUong(maLoai,maNuoc,tenNuoc,gia) values(@maLoai,@maNuoc,@tenNuoc,@gia)";
                 SqlCommand command = new SqlCommand(them, conn);
                 command.Parameters.AddWithValue("@maLoai", du.MaLoai);
-                command.Parameters.AddWithValue("@maNUoc", du.MaNuoc);
+                command.Parameters.AddWithValue("@maNuoc", du.MaNuoc);
                 command.Parameters.AddWithValue("@tenNuoc", du.TenNuoc);
                 command.Parameters.AddWithValue("@gia", du.Gia);
                 command.ExecuteNonQuery();
@@ -66,7 +66,7 @@ namespace QuanLyBanCaPhe
                 string query = "UPDATE doUong SET tenNuoc=@tenNuoc,gia=@gia where maNuoc=@maNuoc";
                 SqlCommand command = new SqlCommand(query, conn);
                 command.Parameters.AddWithValue("@mLoai", du.MaLoai);
-                command.Parameters.AddWithValue("@maNUoc", du.MaNuoc);
+                command.Parameters.AddWithValue("@maNuoc", du.MaNuoc);
                 command.Parameters.AddWithValue("@tenNuoc", du.TenNuoc);
                 command.Parameters.AddWithValue("@gia", du.Gia);
                 command.ExecuteNonQuery();

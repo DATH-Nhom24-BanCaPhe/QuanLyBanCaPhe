@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace QuanLyBanCaPhe
 {
@@ -76,23 +77,35 @@ namespace QuanLyBanCaPhe
         public List<QuanLyHĐ> XemHĐ(DateTime ngayBD,DateTime ngayKT)
         {
             List<QuanLyHĐ> kq = new List<QuanLyHĐ>();
-            SqlConnection conn = new SqlConnection("Data Source = TRUCLY; Initial Catalog = doan; Integrated Security = True;");
-            conn.Open();
-            SqlCommand command = new SqlCommand("SELECT * FROM hoaDon WHERE ngayLapHD between @ngayBD and @ngayKT ",conn);
-            command.Parameters.AddWithValue("@ngayBD",ngayBD);
-            command.Parameters.AddWithValue("@ngayKT",ngayKT);
-            
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            using (SqlConnection conn = new SqlConnection("Data Source = TRUCLY; Initial Catalog = csdl; Integrated Security = True;"))
             {
-                QuanLyHĐ hd = new QuanLyHĐ
+                try
                 {
-                    MaHD = reader["maHD"].ToString(),
-                    NgayLapHoaDon = Convert.ToDateTime(reader["ngayLapHD"]),
-                    TongTien = Convert.ToDouble(reader["tongTien"]),
-                    MaNV = reader["maNV"].ToString()
-                };
-                kq.Add(hd);
+                    conn.Open();
+                    using (SqlCommand command = new SqlCommand("SELECT * FROM hoaDon WHERE ngayLapHD between @ngayBD and @ngayKT ", conn))
+                    {
+                        command.Parameters.AddWithValue("@ngayBD", ngayBD);
+                        command.Parameters.AddWithValue("@ngayKT", ngayKT);
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                QuanLyHĐ hd = new QuanLyHĐ
+                                {
+                                    MaHD = reader["maHD"].ToString(),
+                                    NgayLapHoaDon = Convert.ToDateTime(reader["ngayLapHD"]),
+                                    TongTien = Convert.ToDouble(reader["tongTien"]),
+                                    MaNV = reader["maNV"].ToString()
+                                };
+                                kq.Add(hd);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
             return kq;
         }
